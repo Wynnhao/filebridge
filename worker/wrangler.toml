@@ -1,0 +1,30 @@
+name = "filebridge"
+main = "src/index.ts"
+compatibility_date = "2024-05-29"
+compatibility_flags = ["nodejs_compat"]
+
+# ─── 本地开发 ────────────────────────────────────────────────
+[dev]
+port = 8787
+
+# ─── R2 Bucket 绑定（存储渲染后的 HTML 文件）────────────────
+# 部署前运行：wrangler r2 bucket create filebridge-docs
+[[r2_buckets]]
+binding = "DOCS_BUCKET"
+bucket_name = "filebridge-docs"
+preview_bucket_name = "filebridge-docs-preview"
+
+# ─── KV 命名空间绑定（文档元数据 + 过期控制）────────────────
+# 部署前运行：wrangler kv namespace create DOC_META
+# 将输出的 id 和 preview_id 填入下方
+[[kv_namespaces]]
+binding = "DOC_META"
+id = "PLACEHOLDER_KV_ID"           # ← 替换为真实 KV id
+preview_id = "PLACEHOLDER_KV_PREVIEW_ID"  # ← 替换为真实 preview_id
+
+# ─── 环境变量 ───────────────────────────────────────────────
+[vars]
+# 部署成功后，将此处替换为你的 Workers 域名，然后再次 deploy
+BASE_URL = "https://filebridge.workers.dev"
+MAX_FILE_SIZE_MB = "2"
+DEFAULT_EXPIRES_DAYS = "7"

@@ -1,0 +1,29 @@
+name: Typecheck
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'worker/src/**'
+      - 'worker/tsconfig.json'
+      - 'worker/package.json'
+  pull_request:
+    paths:
+      - 'worker/src/**'
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: cd worker && bun install
+
+      - name: Run typecheck
+        run: cd worker && bun run typecheck

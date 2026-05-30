@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Cloudflare Wrangler build output
+worker/.wrangler/
+worker/dist/
+
+# bun lock (keep bun.lock for reproducibility, but allow npm/pnpm too)
+# bun.lock  <- keep this
+
+# Environment / secrets (NEVER commit)
+.env
+.env.local
+.env.*.local
+worker/.dev.vars
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+**/.DS_Store
+
+# Editor
+.idea/
+*.swp
+*.swo
+.vscode/settings.json
+
+# Logs
+*.log
+logs/
+
+# Internal (CodeFlicker session files — not needed for public repo)
+.codeflicker/
+
+# Old/abandoned monorepo approach
+vibedoc/
+
+# PDR (internal planning doc — keep out of public repo)
+VibeDoc-Share-PDR.md

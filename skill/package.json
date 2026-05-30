@@ -1,0 +1,10 @@
+{
+  "name": "filebridge-skill",
+  "version": "0.1.0",
+  "description": "FileBridge Skill - 零依赖文档桥接工具",
+  "type": "module",
+  "main": "./src/index.ts",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
