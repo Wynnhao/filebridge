@@ -72,7 +72,7 @@ console.log('分享链接：', result.url)
 
 #### 三、在 AI IDE 中使用 Skill
 
-将 `skill/` 目录注册为 CodeFlicker Skill 后，直接对话：
+将 `skill/` 目录注册为 AI IDE 的 Skill（支持 CodeFlicker / Cursor 等），直接对话：
 
 ```
 把这个文档分享出去
