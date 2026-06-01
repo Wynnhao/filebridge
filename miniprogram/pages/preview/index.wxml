@@ -1,0 +1,83 @@
+<!--pages/preview/index.wxml-->
+<view class="page">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+
+  <!-- 错误状态 -->
+  <view wx:elif="{{error}}" class="error-wrap">
+    <view wx:if="{{error === 'NOT_FOUND'}}">
+      <view class="error-icon">🔍</view>
+      <view class="error-title">文档不存在</view>
+      <view class="error-desc">文档 ID 有误或已被删除</view>
+    </view>
+    <view wx:elif="{{error === 'EXPIRED'}}">
+      <view class="error-icon">⏰</view>
+      <view class="error-title">文档已过期</view>
+      <view class="error-desc">该文档已超过有效期，请联系分享者重新上传</view>
+    </view>
+    <view wx:else>
+      <view class="error-icon">📡</view>
+      <view class="error-title">加载失败</view>
+      <view class="error-desc">网络错误，请检查网络后重试</view>
+      <button class="btn-retry" bindtap="loadContent" data-sharecode="{{shareCode}}">重试</button>
+    </view>
+  </view>
+
+  <!-- 文档内容 -->
+  <view wx:else class="doc-wrap">
+    <!-- 文档元信息栏 -->
+    <view class="doc-meta-bar">
+      <view class="doc-meta-left">
+        <view class="doc-type-badge {{fileType}}">{{fileType}}</view>
+        <text class="doc-meta-text">{{wordCount}} 字 · {{viewCount}} 次查看</text>
+        <text wx:if="{{expiryText}}" class="doc-expiry">{{expiryText}}</text>
+      </view>
+    </view>
+
+    <!-- 带外部样式的 HTML 提示 -->
+    <view wx:if="{{hasExternalStyle}}" class="style-warning card">
+      <view class="style-warning-icon">⚠️</view>
+      <view class="style-warning-text">
+        <view class="style-warning-title">样式无法完整渲染</view>
+        <view class="style-warning-desc">此 HTML 文件包含自定义样式，飞文内仅显示文字结构。建议在浏览器内打开以获得完整效果。</view>
+      </view>
+    </view>
+
+    <!-- towxml 渲染 -->
+    <scroll-view
+      wx:if="{{towxmlAvailable && nodes}}"
+      scroll-y
+      class="doc-scroll"
+    >
+      <view class="doc-content">
+        <towxml nodes="{{nodes}}" bindtap="handleNodeTap" />
+      </view>
+    </scroll-view>
+
+    <!-- 降级：原始文本 -->
+    <scroll-view wx:elif="{{rawContent}}" scroll-y class="doc-scroll">
+      <view class="doc-content raw-content">
+        <text selectable>{{rawContent}}</text>
+      </view>
+    </scroll-view>
+
+    <!-- towxml 安装提示 -->
+    <view wx:else class="towxml-hint card">
+      <view class="hint-icon">📦</view>
+      <view class="hint-title">需要安装 towxml</view>
+      <view class="hint-desc">在开发者工具终端执行：</view>
+      <view class="hint-code">npm install towxml</view>
+      <view class="hint-desc">然后点击「工具 → 构建 npm」</view>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view wx:if="{{!loading && !error}}" class="bottom-bar">
+    <button class="btn-share-card" bindtap="handleShare" open-type="share">
+      <text>🔗 分享文档</text>
+    </button>
+  </view>
+</view>

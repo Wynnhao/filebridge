@@ -1,0 +1,9 @@
+{
+  "name": "getDocContent",
+  "version": "1.0.0",
+  "description": "通过 shareCode 获取文档内容",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

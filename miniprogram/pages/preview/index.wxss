@@ -1,0 +1,245 @@
+/* pages/preview/index.wxss */
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+/* 带外部样式 HTML 提示 */
+.style-warning {
+  margin: 16rpx 0 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  background: #fffbf0;
+  border: 1rpx solid #ffe58f;
+  padding: 24rpx 28rpx;
+  border-radius: 12rpx;
+}
+
+.style-warning-icon {
+  font-size: 36rpx;
+  flex-shrink: 0;
+  margin-top: 2rpx;
+}
+
+.style-warning-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #d48806;
+  margin-bottom: 6rpx;
+}
+
+.style-warning-desc {
+  font-size: 22rpx;
+  color: #8b6a00;
+  line-height: 1.6;
+}
+
+/* 元信息栏 */
+.doc-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 32rpx;
+  background: #f8f8f8;
+  border-bottom: 1rpx solid #eeeeee;
+  flex-shrink: 0;
+}
+
+.doc-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
+.doc-type-badge {
+  font-size: 18rpx;
+  font-weight: 600;
+  padding: 4rpx 10rpx;
+  border-radius: 6rpx;
+  text-transform: uppercase;
+}
+
+.doc-type-badge.md {
+  background: #e8f7ef;
+  color: #07c160;
+}
+
+.doc-type-badge.html {
+  background: #fff3e0;
+  color: #ff8c00;
+}
+
+.doc-meta-text {
+  font-size: 22rpx;
+  color: #999999;
+}
+
+.doc-expiry {
+  font-size: 22rpx;
+  color: #ff8c00;
+}
+
+/* 文档滚动区 */
+.doc-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.doc-scroll {
+  flex: 1;
+  height: 0;  /* flex 子项需要显式设置才能滚动 */
+}
+
+.doc-content {
+  padding: 32rpx;
+  padding-bottom: 160rpx; /* 给底部操作栏留空间 */
+}
+
+/* 降级原始文本样式 */
+.raw-content {
+  font-family: 'Menlo', 'Courier New', monospace;
+  font-size: 24rpx;
+  line-height: 1.7;
+  color: #555555;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* towxml 安装提示 */
+.towxml-hint {
+  margin: 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 32rpx;
+  text-align: center;
+}
+
+.hint-icon {
+  font-size: 72rpx;
+  margin-bottom: 20rpx;
+}
+
+.hint-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 16rpx;
+}
+
+.hint-desc {
+  font-size: 26rpx;
+  color: #999999;
+  margin-bottom: 8rpx;
+}
+
+.hint-code {
+  background: #f4f4f4;
+  border-radius: 8rpx;
+  padding: 12rpx 24rpx;
+  font-family: monospace;
+  font-size: 26rpx;
+  color: #333333;
+  margin: 8rpx 0 16rpx;
+}
+
+/* 错误状态 */
+.error-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+  padding: 32rpx;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 96rpx;
+  margin-bottom: 24rpx;
+}
+
+.error-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 16rpx;
+}
+
+.error-desc {
+  font-size: 28rpx;
+  color: #999999;
+  margin-bottom: 32rpx;
+}
+
+.btn-retry {
+  background: #07c160;
+  color: #ffffff;
+  border-radius: 48rpx;
+  padding: 16rpx 48rpx;
+  font-size: 28rpx;
+  border: none;
+}
+
+.btn-retry::after {
+  border: none;
+}
+
+/* Loading */
+.loading-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  flex-direction: column;
+  gap: 24rpx;
+  color: #999999;
+}
+
+.loading-spinner {
+  width: 64rpx;
+  height: 64rpx;
+  border: 6rpx solid #f0f0f0;
+  border-top-color: #07c160;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 底部操作栏 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: #ffffff;
+  border-top: 1rpx solid #eeeeee;
+  display: flex;
+  gap: 16rpx;
+}
+
+.btn-share-card {
+  flex: 1;
+  background: #07c160;
+  color: #ffffff;
+  border-radius: 48rpx;
+  padding: 20rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  border: none;
+  text-align: center;
+}
+
+.btn-share-card::after {
+  border: none;
+}

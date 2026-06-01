@@ -1,0 +1,11 @@
+{
+  "name": "feiwen-miniprogram",
+  "version": "1.0.0",
+  "description": "飞文 - 让 AI 文档在微信里飞起来",
+  "scripts": {
+    "install:towxml": "npm install towxml"
+  },
+  "dependencies": {
+    "towxml": "^3.0.3"
+  }
+}

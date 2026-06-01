@@ -1,0 +1,55 @@
+/* pages/viewer/index.wxss - 与 preview 共享主要样式，仅覆写差异部分 */
+@import '../preview/index.wxss';
+
+/* 带外部样式警告（同 preview 页） */
+.style-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  background: #fffbf0;
+  border: 1rpx solid #ffe58f;
+  padding: 24rpx 28rpx;
+  margin: 16rpx 0 0;
+}
+.style-warning-icon { font-size: 36rpx; flex-shrink: 0; margin-top: 2rpx; }
+.style-warning-title { font-size: 26rpx; font-weight: 600; color: #d48806; margin-bottom: 6rpx; }
+.style-warning-desc { font-size: 22rpx; color: #8b6a00; line-height: 1.6; }
+
+/* 底部双按钮 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: #ffffff;
+  border-top: 1rpx solid #eeeeee;
+  display: flex;
+  gap: 16rpx;
+}
+
+.btn-save {
+  flex: 1;
+  background: #f0f0f0;
+  color: #333333;
+  border-radius: 48rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  border: none;
+  text-align: center;
+}
+.btn-save::after { border: none; }
+
+.btn-forward {
+  flex: 1;
+  background: #07c160;
+  color: #ffffff;
+  border-radius: 48rpx;
+  padding: 20rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  border: none;
+  text-align: center;
+}
+.btn-forward::after { border: none; }

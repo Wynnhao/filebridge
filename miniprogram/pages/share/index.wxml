@@ -1,0 +1,50 @@
+<!--pages/share/index.wxml-->
+<view class="page container">
+  <!-- 文档信息卡片 -->
+  <view class="card doc-info-card">
+    <view class="doc-icon">📄</view>
+    <view class="doc-title">{{title}}</view>
+    <view class="doc-expiry-row">
+      <text class="expiry-label">有效期：</text>
+      <text class="expiry-value">{{expiryText}}</text>
+    </view>
+  </view>
+
+  <!-- 文档编码卡片 -->
+  <view class="card code-card">
+    <view class="code-card-label">文档编码</view>
+    <view class="code-card-value">{{shareCode}}</view>
+    <view class="code-card-hint">朋友可在首页输入此编码打开文档</view>
+    <view class="code-card-alt-hint">如果分享卡片无法发送，可复制编码通过其他方式分享</view>
+    <button
+      class="btn-copy-code {{codeCopied ? 'copied' : ''}}"
+      bindtap="handleCopyCode"
+    >
+      <text wx:if="{{!codeCopied}}">📋 复制编码</text>
+      <text wx:else>✅ 已复制！</text>
+    </button>
+  </view>
+
+  <!-- 分享方式 -->
+  <view class="section-title">分享给朋友</view>
+
+  <view class="card share-options">
+    <!-- 发送给好友 -->
+    <button class="share-item" open-type="share">
+      <view class="share-item-icon">💬</view>
+      <view class="share-item-info">
+        <view class="share-item-title">发送给好友 / 群</view>
+        <view class="share-item-desc">对方点开卡片即可直接阅读</view>
+      </view>
+      <view class="share-item-arrow">›</view>
+    </button>
+  </view>
+
+  <!-- 使用说明 -->
+  <view class="usage-tip card">
+    <view class="tip-title">💡 使用说明</view>
+    <view class="tip-item">1. 点击「发送给好友/群」转发小程序卡片</view>
+    <view class="tip-item">2. 对方点开卡片，无需安装任何 App，直接阅读</view>
+    <view class="tip-item">3. 或复制编码，让朋友在首页搜索栏中输入</view>
+  </view>
+</view>

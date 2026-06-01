@@ -1,0 +1,23 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/preview/index",
+    "pages/share/index",
+    "pages/viewer/index"
+  ],
+  "window": {
+    "backgroundColor": "#f8f8f8",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "飞文",
+    "navigationBarTextStyle": "black"
+  },
+  "usingComponents": {},
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "networkTimeout": {
+    "request": 10000,
+    "uploadFile": 30000,
+    "downloadFile": 30000
+  }
+}

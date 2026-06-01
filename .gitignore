@@ -14,6 +14,9 @@ worker/dist/
 .env.*.local
 worker/.dev.vars
 
+# 微信小程序上传密钥（NEVER commit）
+*.key
+
 # macOS
 .DS_Store
 .DS_Store?

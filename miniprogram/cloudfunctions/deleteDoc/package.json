@@ -1,0 +1,9 @@
+{
+  "name": "deleteDoc",
+  "version": "1.0.0",
+  "description": "删除文档云函数（含权限校验）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

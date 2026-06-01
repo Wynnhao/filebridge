@@ -1,0 +1,188 @@
+/* pages/share/index.wxss */
+.page {
+  padding-top: 32rpx;
+  padding-bottom: 80rpx;
+}
+
+/* 文档信息卡片 */
+.doc-info-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.doc-icon {
+  font-size: 88rpx;
+  margin-bottom: 20rpx;
+}
+
+.doc-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-align: center;
+  margin-bottom: 16rpx;
+}
+
+.doc-expiry-row {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.expiry-label {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+.expiry-value {
+  font-size: 24rpx;
+  color: #ff8c00;
+}
+
+/* 分享选项 */
+.section-title {
+  font-size: 26rpx;
+  color: #999999;
+  padding: 0 0 16rpx;
+  font-weight: 500;
+}
+
+.share-options {
+  padding: 0;
+  overflow: hidden;
+}
+
+.share-item {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 28rpx 28rpx;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.share-item::after {
+  border: none;
+}
+
+.share-item-icon {
+  font-size: 48rpx;
+  flex-shrink: 0;
+  width: 64rpx;
+  text-align: center;
+}
+
+.share-item-info {
+  flex: 1;
+}
+
+.share-item-title {
+  font-size: 30rpx;
+  color: #1a1a1a;
+  font-weight: 500;
+  margin-bottom: 4rpx;
+}
+
+.share-item-desc {
+  font-size: 22rpx;
+  color: #999999;
+}
+
+.share-item-arrow {
+  font-size: 40rpx;
+  color: #cccccc;
+}
+
+.divider {
+  height: 1rpx;
+  background: #f0f0f0;
+  margin: 0 28rpx;
+}
+
+/* 文档编码卡片 */
+.code-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36rpx 32rpx;
+  margin-bottom: 32rpx;
+  background: linear-gradient(135deg, #f0fbf5 0%, #e8f7ef 100%);
+  border: 1rpx solid #c2e8d4;
+}
+
+.code-card-label {
+  font-size: 22rpx;
+  color: #0aa552;
+  font-weight: 500;
+  margin-bottom: 12rpx;
+  letter-spacing: 1rpx;
+}
+
+.code-card-value {
+  font-family: 'Menlo', 'Courier New', monospace;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #07c160;
+  letter-spacing: 8rpx;
+  margin-bottom: 10rpx;
+  user-select: text;
+}
+
+.code-card-hint {
+  font-size: 22rpx;
+  color: #88bb9e;
+  text-align: center;
+  margin-bottom: 6rpx;
+}
+
+.code-card-alt-hint {
+  font-size: 20rpx;
+  color: #aaccbb;
+  text-align: center;
+  margin-bottom: 24rpx;
+  line-height: 1.6;
+}
+
+.btn-copy-code {
+  background: #07c160;
+  color: #ffffff;
+  border-radius: 40rpx;
+  padding: 16rpx 48rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+  border: none;
+  transition: background 0.2s;
+}
+
+.btn-copy-code.copied {
+  background: #0aa552;
+}
+
+.btn-copy-code::after {
+  border: none;
+}
+
+/* 使用说明 */
+.usage-tip {
+  background: #f8fff9;
+  border: 1rpx solid #e8f7ef;
+}
+
+.tip-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #07c160;
+  margin-bottom: 16rpx;
+}
+
+.tip-item {
+  font-size: 24rpx;
+  color: #666666;
+  line-height: 1.8;
+}

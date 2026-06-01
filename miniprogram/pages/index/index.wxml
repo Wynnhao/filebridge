@@ -1,0 +1,158 @@
+<!--pages/index/index.wxml-->
+<view class="page">
+  <!-- 顶部 Banner -->
+  <view class="header">
+    <view class="header-title">飞文</view>
+    <view class="header-subtitle">让 AI 文档在微信里飞起来</view>
+  </view>
+
+  <!-- 按编码获取文档 -->
+  <view class="code-search-section card">
+    <view class="code-search-label">🔍 按编码获取文档</view>
+    <view class="code-search-row">
+      <input
+        class="code-input"
+        type="text"
+        placeholder="输入文档编码（如 guide000）"
+        placeholder-class="code-input-placeholder"
+        value="{{codeInput}}"
+        bindinput="handleCodeInput"
+        maxlength="12"
+        confirm-type="search"
+        bindconfirm="handleGetByCode"
+      />
+      <button
+        class="btn-paste"
+        bindtap="handlePasteCode"
+      >粘贴</button>
+      <button
+        class="btn-search"
+        bindtap="handleGetByCode"
+        loading="{{codeSearching}}"
+        disabled="{{codeSearching}}"
+      >查找</button>
+    </view>
+  </view>
+
+  <!-- 上传按钮区域 -->
+  <view class="upload-section card">
+    <view class="upload-icon">📄</view>
+    <view class="upload-desc">选择 .md 或 .html 文件</view>
+    <view class="upload-hint">三种方式上传文档，满足不同场景需求</view>
+    <view class="upload-btn-row upload-btn-row-three">
+      <button
+        class="btn-upload btn-upload-chat"
+        bindtap="handleChooseFile"
+        loading="{{uploading}}"
+        disabled="{{uploading}}"
+      >
+        <text wx:if="{{!uploading}}">💬 聊天</text>
+        <text wx:else>上传中</text>
+      </button>
+      <button
+        class="btn-upload btn-upload-local"
+        bindtap="handleChooseLocalFile"
+        loading="{{uploading}}"
+        disabled="{{uploading}}"
+      >
+        <text wx:if="{{!uploading}}">📁 本地</text>
+        <text wx:else>上传中</text>
+      </button>
+      <button
+        class="btn-upload btn-upload-paste"
+        bindtap="handlePasteUpload"
+        disabled="{{uploading}}"
+      >
+        📋 粘贴
+      </button>
+    </view>
+  </view>
+
+  <!-- 粘贴上传弹窗 -->
+  <view wx:if="{{showPasteModal}}" class="paste-modal">
+    <view class="paste-modal-mask" bindtap="handleClosePasteModal"></view>
+    <view class="paste-modal-content card">
+      <view class="paste-modal-title">粘贴文档内容</view>
+      <view class="paste-modal-hint">将 Markdown 或 HTML 内容粘贴到下方，支持直接从 AI 工具复制</view>
+      <textarea
+        class="paste-modal-input"
+        value="{{pasteContent}}"
+        bindinput="handlePasteInput"
+        placeholder="在此粘贴文档内容..."
+        maxlength="-1"
+        auto-height
+        focus="{{showPasteModal}}"
+      />
+      <view class="paste-modal-filename-row">
+        <text class="paste-modal-filename-label">文件名：</text>
+        <input
+          class="paste-modal-filename-input"
+          value="{{pasteFilename}}"
+          bindinput="handlePasteFilenameInput"
+          placeholder="guide.md"
+          maxlength="50"
+        />
+      </view>
+      <view class="paste-modal-btn-row">
+        <button class="btn-modal-cancel" bindtap="handleClosePasteModal">取消</button>
+        <button
+          class="btn-modal-confirm"
+          bindtap="handleConfirmPasteUpload"
+          disabled="{{!pasteContent}}"
+        >上传</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 文档列表 -->
+  <view class="section-title">我的文档</view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:elif="{{docs.length === 0}}" class="empty-state">
+    <view class="empty-icon">📭</view>
+    <view class="empty-text">还没有文档，快去上传第一篇吧</view>
+  </view>
+
+  <!-- 文档列表 -->
+  <view wx:else class="doc-list">
+    <view
+      wx:for="{{docs}}"
+      wx:key="_id"
+      class="doc-item card"
+      bindtap="handleDocTap"
+      data-sharecode="{{item.shareCode}}"
+      data-title="{{item.title}}"
+      data-id="{{item._id}}"
+      data-isguide="{{item.isGuide}}"
+    >
+      <view class="doc-item-left">
+        <view class="doc-type-badge {{item.fileType}} {{item.isGuide ? 'guide' : ''}}">{{item.isGuide ? '📖' : item.fileType}}</view>
+      </view>
+      <view class="doc-item-center">
+        <view class="doc-title">{{item.title}}</view>
+        <view class="doc-code-row">
+          <text class="doc-code-label">编码</text>
+          <text class="doc-code-value">{{item.shareCode}}</text>
+        </view>
+        <view class="doc-meta">
+          <text wx:if="{{item.wordCount}}">{{item.wordCount}} 字</text>
+          <text class="dot">·</text>
+          <text>{{item.relativeTime}}</text>
+          <text class="dot">·</text>
+          <text class="expiry {{item.expiresAt ? '' : 'never'}}">{{item.expiryText}}</text>
+        </view>
+      </view>
+      <view class="doc-item-right">
+        <view wx:if="{{!item.isGuide}}" class="doc-delete" catchtap="handleDeleteDoc" data-id="{{item._id}}" data-sharecode="{{item.shareCode}}" data-title="{{item.title}}" data-isguide="{{item.isGuide}}">🗑</view>
+        <view class="doc-views">👁 {{item.viewCount}}</view>
+        <view class="doc-arrow">›</view>
+      </view>
+    </view>
+  </view>
+</view>
