@@ -5,6 +5,13 @@
     "pages/share/index",
     "pages/viewer/index"
   ],
+  "subPackages": [
+    {
+      "root": "packages-doc-bridge",
+      "pages": [],
+      "independent": true
+    }
+  ],
   "window": {
     "backgroundColor": "#f8f8f8",
     "backgroundTextStyle": "light",
@@ -19,5 +26,15 @@
     "request": 10000,
     "uploadFile": 30000,
     "downloadFile": 30000
-  }
+  },
+  "agent": {
+    "skills": [
+      {
+        "name": "doc-bridge",
+        "description": "马档文档传阅技能。支持上传 Markdown/HTML/TXT 文档、查看文档列表、获取分享码、删除文档。用户可通过聊天框发送文件或粘贴文本来上传文档。",
+        "path": "/packages-doc-bridge"
+      }
+    ]
+  },
+  "instruction": "AGENTS.md"
 }
