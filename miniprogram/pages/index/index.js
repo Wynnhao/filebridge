@@ -5,18 +5,25 @@ const { formatRelativeTime, formatExpiry } = require('../../utils/helper')
 Page({
   data: {
     docs: [],
+    filteredDocs: [],
+    searchKeyword: '',
     loading: false,
     uploading: false,
     uploadProgress: 0,
+    expiryDays: 7,        // 文档有效期（天）
+    showExpiryPicker: false,
     codeInput: '',        // 按编码获取文档 - 输入框内容
     codeSearching: false, // 按编码查询中
     showPasteModal: false, // 粘贴上传弹窗
     pasteContent: '',      // 粘贴的文档内容
     pasteFilename: 'document.md', // 粘贴的文件名
+    theme: 'light',        // codeflicker-fix: THEME-Issue-001/chudbvwsbhsz7kn7hanw
   },
 
   onLoad() {
-    // 不立即加载，避免阻塞页面初始化导致 timeout
+    // 同步读取持久化主题
+    const app = getApp()
+    this.setData({ theme: app.loadTheme() })
   },
 
   onShow() {
@@ -43,7 +50,13 @@ Page({
           relativeTime: formatRelativeTime(doc.createdAt),
           expiryText: formatExpiry(doc.expiresAt),
         }))
-        this.setData({ docs, loading: false })
+        // 置顶优先
+        docs.sort((a, b) => {
+          if (a.pinned && !b.pinned) return -1
+          if (!a.pinned && b.pinned) return 1
+          return 0
+        })
+        this.setData({ docs, filteredDocs: docs, loading: false })
       } else {
         this.setData({ loading: false })
       }
@@ -68,14 +81,24 @@ Page({
     this.setData({ pasteContent: e.detail.value })
     // 自动推断文件名后缀
     const content = e.detail.value
+    // codeflicker-fix: LOGIC-Issue-003/chudbvwsbhsz7kn7hanw — 补 TXT 类型检测
     if (content.trim().startsWith('<!') || content.trim().startsWith('<html') || content.trim().startsWith('<HTML')) {
       if (!this.data.pasteFilename.endsWith('.html')) {
         const name = this.data.pasteFilename.replace(/\.\w+$/, '') + '.html'
         this.setData({ pasteFilename: name })
       }
-    } else if (!this.data.pasteFilename.endsWith('.md')) {
-      const name = this.data.pasteFilename.replace(/\.\w+$/, '') + '.md'
-      this.setData({ pasteFilename: name })
+    } else if (content.trim().startsWith('#') || content.trim().startsWith('```') || content.includes('\n') && (content.includes('##') || content.includes('*'))) {
+      // 有明显 Markdown 特征：以 # 或 ``` 开头，或多行且含 ##、* 等语法
+      if (!this.data.pasteFilename.endsWith('.md')) {
+        const name = this.data.pasteFilename.replace(/\.\w+$/, '') + '.md'
+        this.setData({ pasteFilename: name })
+      }
+    } else {
+      // 纯文本，没有 Markdown/HTML 特征 → 推断为 .txt
+      if (!this.data.pasteFilename.endsWith('.txt')) {
+        const name = this.data.pasteFilename.replace(/\.\w+$/, '') + '.txt'
+        this.setData({ pasteFilename: name })
+      }
     }
   },
 
@@ -85,6 +108,7 @@ Page({
   },
 
   // 确认粘贴上传
+  // codeflicker-fix: EDGE-Issue-002/7k3sz5llqevbucvw3joj — 文件写入失败时兜底处理
   async handleConfirmPasteUpload() {
     const content = this.data.pasteContent.trim()
     if (!content) {
@@ -94,13 +118,23 @@ Page({
     const filename = this.data.pasteFilename.trim() || 'document.md'
     const fs = wx.getFileSystemManager()
     const tempPath = `${wx.env.USER_DATA_PATH}/${filename}`
+    let uploadPath = ''
     try {
       fs.writeFileSync(tempPath, content, 'utf8')
+      uploadPath = tempPath
     } catch (e) {
-      // 写入失败时直接用内容上传
+      // 写入失败：尝试使用随机文件名避免冲突
+      try {
+        const altPath = `${wx.env.USER_DATA_PATH}/${Date.now()}_${filename}`
+        fs.writeFileSync(altPath, content, 'utf8')
+        uploadPath = altPath
+      } catch (e2) {
+        // 仍然失败：不传 filePath，uploadDoc 内部会只用 content 创建文档
+        uploadPath = ''
+      }
     }
     this.setData({ showPasteModal: false })
-    await this.doUpload(tempPath, content, filename)
+    await this.doUpload(uploadPath, content, filename)
   },
 
   // 从微信聊天选取文件
@@ -109,7 +143,7 @@ Page({
       const res = await wx.chooseMessageFile({
         count: 1,
         type: 'file',
-        extension: ['md', 'html'],
+        extension: ['md', 'html', 'txt'],
       })
       const file = res.tempFiles[0]
       const fs = wx.getFileSystemManager()
@@ -127,36 +161,42 @@ Page({
     }
   },
 
-  // 从本地选取文件
+  // 从本地选取文件（引导用户通过「文件传输助手」从聊天选取）
+  // 注意：wx.chooseFile 仅在模拟器中可用，真机上不支持直接选取本地文件
+  // 微信小程序唯一可用的文件选取 API 是 wx.chooseMessageFile（从聊天记录选取）
+  // 用户可以先将文件发送到「文件传输助手」，再通过此功能选取
   async handleChooseLocalFile() {
-    // 优先尝试 wx.chooseFile（部分安卓机型支持）
-    // 不支持时降级为 wx.chooseMessageFile（从聊天记录选取）
-    try {
-      if (wx.chooseFile) {
-        const res = await wx.chooseFile({
-          count: 1,
-          type: 'file',
-          extension: ['md', 'html'],
-        })
-        const file = res.tempFiles[0]
-        const fs = wx.getFileSystemManager()
-        let content
-        try {
-          content = fs.readFileSync(file.path, 'utf-8')
-        } catch (e) {
-          wx.showToast({ title: '文件读取失败，请重试', icon: 'none' })
-          return
+    wx.showModal({
+      title: '选取本地文件',
+      content: '微信小程序暂不支持直接选取手机本地文件。请先将文件发送到微信「文件传输助手」，然后从聊天记录中选取。点击「知道了」将跳转到聊天文件选取。',
+      confirmText: '知道了',
+      cancelText: '取消',
+      success: async (res) => {
+        if (res.confirm) {
+          // 降级为从聊天选取
+          try {
+            const result = await wx.chooseMessageFile({
+              count: 1,
+              type: 'file',
+              extension: ['md', 'html', 'txt'],
+            })
+            const file = result.tempFiles[0]
+            const fs = wx.getFileSystemManager()
+            let content
+            try {
+              content = fs.readFileSync(file.path, 'utf-8')
+            } catch (e) {
+              wx.showToast({ title: '文件读取失败，请重试', icon: 'none' })
+              return
+            }
+            await this.doUpload(file.path, content, file.name)
+          } catch (err) {
+            if (err.errMsg && err.errMsg.includes('cancel')) return
+            wx.showToast({ title: '选取文件失败', icon: 'none' })
+          }
         }
-        await this.doUpload(file.path, content, file.name)
-      } else {
-        // API 不存在时提示用户使用其他方式
-        wx.showToast({ title: '当前机型不支持本地选取，请用聊天或粘贴方式', icon: 'none', duration: 3000 })
-      }
-    } catch (err) {
-      if (err.errMsg && err.errMsg.includes('cancel')) return
-      // chooseFile 失败时降级为聊天选取
-      wx.showToast({ title: '本地选取不可用，请用聊天或粘贴方式上传', icon: 'none', duration: 3000 })
-    }
+      },
+    })
   },
 
   // 执行上传
@@ -164,7 +204,7 @@ Page({
     this.setData({ uploading: true, uploadProgress: 0 })
     wx.showLoading({ title: '上传中...', mask: true })
 
-    const { success, data, error } = await uploadDoc(filePath, content, filename)
+    const { success, data, error } = await uploadDoc(filePath, content, filename, this.data.expiryDays)
 
     wx.hideLoading()
     this.setData({ uploading: false })
@@ -213,9 +253,8 @@ Page({
           wx.hideLoading()
           if (success) {
             wx.showToast({ title: '已删除', icon: 'success' })
-            // 重置 loading 标志以允许重新加载列表
-            this._loadingFlag = false
-            // 强制刷新列表（删除后需要重新加载）
+            // codeflicker-fix: MAINT-Issue-009/chudbvwsbhsz7kn7hanw — 移除无效 _loadingFlag
+            // 强制刷新列表（forceRefresh=true 绕过 loading 守卫）
             this.loadDocs(true)
           } else {
             wx.showToast({ title: '删除失败，请重试', icon: 'none' })
@@ -290,8 +329,70 @@ Page({
     })
   },
 
+  // 搜索输入
+  handleSearchInput(e) {
+    const kw = e.detail.value.trim().toLowerCase()
+    if (!kw) {
+      this.setData({ searchKeyword: '', filteredDocs: this.data.docs })
+      return
+    }
+    const filtered = this.data.docs.filter(doc =>
+      (doc.title || '').toLowerCase().includes(kw) ||
+      (doc.shareCode || '').toLowerCase().includes(kw)
+    )
+    this.setData({ searchKeyword: kw, filteredDocs: filtered })
+  },
+
+  // 清除搜索
+  handleClearSearch() {
+    this.setData({ searchKeyword: '', filteredDocs: this.data.docs })
+  },
+
+  // 展开/折叠有效期选择器
+  toggleExpiryPicker() {
+    this.setData({ showExpiryPicker: !this.data.showExpiryPicker })
+  },
+
+  // 选择有效期
+  selectExpiry(e) {
+    this.setData({
+      expiryDays: parseInt(e.currentTarget.dataset.days),
+      showExpiryPicker: false,
+    })
+  },
+
+  // 切换置顶
+  async handleTogglePin(e) {
+    const { id, pinned } = e.currentTarget.dataset
+    wx.showLoading({ title: pinned ? '取消置顶...' : '置顶中...', mask: true })
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'pinDoc',
+        data: { docId: id, pinned: !pinned }
+      })
+      wx.hideLoading()
+      if (res.result && res.result.success) {
+        wx.showToast({ title: pinned ? '已取消置顶' : '已置顶', icon: 'success' })
+        this.loadDocs(true)
+      } else {
+        wx.showToast({ title: '操作失败，请重试', icon: 'none' })
+      }
+    } catch (err) {
+      wx.hideLoading()
+      wx.showToast({ title: '操作失败，请重试', icon: 'none' })
+    }
+  },
+
   // 下拉刷新
   onPullDownRefresh() {
     this.loadDocs().then(() => wx.stopPullDownRefresh())
+  },
+
+  // 切换首页主题
+  // codeflicker-fix: THEME-Issue-001/chudbvwsbhsz7kn7hanw
+  toggleIndexTheme() {
+    const app = getApp()
+    const next = app.toggleTheme()
+    this.setData({ theme: next })
   },
 })

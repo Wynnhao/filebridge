@@ -1,9 +1,18 @@
 <!--pages/index/index.wxml-->
-<view class="page">
+<view class="page theme-{{theme}}">
   <!-- 顶部 Banner -->
   <view class="header">
-    <view class="header-title">飞文</view>
-    <view class="header-subtitle">让 AI 文档在微信里飞起来</view>
+    <view class="header-row">
+      <view class="header-left">
+        <view class="header-title">马档</view>
+        <view class="header-subtitle">文档传阅，即刻分享</view>
+      </view>
+      <!-- 主题切换 -->
+      <view class="header-theme-btn" bindtap="toggleIndexTheme">
+        <text wx:if="{{theme === 'light'}}">🌙</text>
+        <text wx:else>☀️</text>
+      </view>
+    </view>
   </view>
 
   <!-- 按编码获取文档 -->
@@ -37,8 +46,22 @@
   <!-- 上传按钮区域 -->
   <view class="upload-section card">
     <view class="upload-icon">📄</view>
-    <view class="upload-desc">选择 .md 或 .html 文件</view>
+    <view class="upload-desc">选择 .md / .html / .txt 文件</view>
     <view class="upload-hint">三种方式上传文档，满足不同场景需求</view>
+
+    <!-- 有效期选择 -->
+    <view class="expiry-row" bindtap="toggleExpiryPicker">
+      <text class="expiry-label">有效期</text>
+      <text class="expiry-value">{{expiryDays === 1 ? '1天' : (expiryDays === 3 ? '3天' : (expiryDays === 7 ? '7天' : '30天'))}}</text>
+      <text class="expiry-arrow">{{showExpiryPicker ? '▴' : '▾'}}</text>
+    </view>
+    <view wx:if="{{showExpiryPicker}}" class="expiry-options">
+      <view class="expiry-option {{expiryDays === 1 ? 'active' : ''}}" bindtap="selectExpiry" data-days="1">1 天</view>
+      <view class="expiry-option {{expiryDays === 3 ? 'active' : ''}}" bindtap="selectExpiry" data-days="3">3 天</view>
+      <view class="expiry-option {{expiryDays === 7 ? 'active' : ''}}" bindtap="selectExpiry" data-days="7">7 天</view>
+      <view class="expiry-option {{expiryDays === 30 ? 'active' : ''}}" bindtap="selectExpiry" data-days="30">30 天</view>
+    </view>
+
     <view class="upload-btn-row upload-btn-row-three">
       <button
         class="btn-upload btn-upload-chat"
@@ -46,7 +69,7 @@
         loading="{{uploading}}"
         disabled="{{uploading}}"
       >
-        <text wx:if="{{!uploading}}">💬 聊天</text>
+        <text wx:if="{{!uploading}}">💬 微信</text>
         <text wx:else>上传中</text>
       </button>
       <button
@@ -104,8 +127,19 @@
     </view>
   </view>
 
+  <!-- 文档搜索栏 -->
+  <view wx:if="{{docs.length > 0 || searchKeyword}}" class="search-bar">
+    <view class="search-icon">🔍</view>
+    <input class="search-input"
+      placeholder="搜索文档标题或编码"
+      value="{{searchKeyword}}"
+      bindinput="handleSearchInput"
+      confirm-type="search" />
+    <view wx:if="{{searchKeyword}}" class="search-clear" bindtap="handleClearSearch">✕</view>
+  </view>
+
   <!-- 文档列表 -->
-  <view class="section-title">我的文档</view>
+  <view class="section-title">{{searchKeyword ? '搜索结果' : '我的文档'}}</view>
 
   <!-- 加载中 -->
   <view wx:if="{{loading}}" class="loading-wrap">
@@ -114,15 +148,21 @@
   </view>
 
   <!-- 空状态 -->
-  <view wx:elif="{{docs.length === 0}}" class="empty-state">
+  <view wx:elif="{{filteredDocs.length === 0 && !searchKeyword}}" class="empty-state">
     <view class="empty-icon">📭</view>
     <view class="empty-text">还没有文档，快去上传第一篇吧</view>
+  </view>
+
+  <!-- 搜索无结果 -->
+  <view wx:elif="{{filteredDocs.length === 0 && searchKeyword}}" class="empty-state">
+    <view class="empty-icon">🔎</view>
+    <view class="empty-text">没有匹配的文档</view>
   </view>
 
   <!-- 文档列表 -->
   <view wx:else class="doc-list">
     <view
-      wx:for="{{docs}}"
+      wx:for="{{filteredDocs}}"
       wx:key="_id"
       class="doc-item card"
       bindtap="handleDocTap"
@@ -130,8 +170,10 @@
       data-title="{{item.title}}"
       data-id="{{item._id}}"
       data-isguide="{{item.isGuide}}"
+      data-pinned="{{item.pinned}}"
     >
       <view class="doc-item-left">
+        <view wx:if="{{item.pinned && !item.isGuide}}" class="pin-badge">📌</view>
         <view class="doc-type-badge {{item.fileType}} {{item.isGuide ? 'guide' : ''}}">{{item.isGuide ? '📖' : item.fileType}}</view>
       </view>
       <view class="doc-item-center">
@@ -149,6 +191,7 @@
         </view>
       </view>
       <view class="doc-item-right">
+        <view wx:if="{{!item.isGuide}}" class="doc-pin" catchtap="handleTogglePin" data-id="{{item._id}}" data-pinned="{{item.pinned}}">{{item.pinned ? '📌' : '📍'}}</view>
         <view wx:if="{{!item.isGuide}}" class="doc-delete" catchtap="handleDeleteDoc" data-id="{{item._id}}" data-sharecode="{{item.shareCode}}" data-title="{{item.title}}" data-isguide="{{item.isGuide}}">🗑</view>
         <view class="doc-views">👁 {{item.viewCount}}</view>
         <view class="doc-arrow">›</view>

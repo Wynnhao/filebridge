@@ -1,7 +1,7 @@
 {
   "name": "feiwen-miniprogram",
   "version": "1.0.0",
-  "description": "飞文 - 让 AI 文档在微信里飞起来",
+  "description": "马档 - 文档传阅，即刻分享",
   "scripts": {
     "install:towxml": "npm install towxml"
   },

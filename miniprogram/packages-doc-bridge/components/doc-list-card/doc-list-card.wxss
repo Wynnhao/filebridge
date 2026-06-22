@@ -1,0 +1,146 @@
+/* components/doc-list-card/doc-list-card.wxss */
+/* doc-bridge SKILL 原子组件：文档列表卡片样式 */
+/* 遵守原子组件约束：无滚动、固定尺寸、无动画 */
+
+.doc-list-card {
+  width: 100%;
+  height: auto;
+  padding: 16px;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden; /* 禁止滚动 */
+}
+
+.card-header {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.doc-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.doc-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f8f8f8;
+}
+
+.doc-item:last-child {
+  border-bottom: none;
+}
+
+.doc-item-left {
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.doc-type-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.doc-type-md {
+  background: #4a90d9;
+}
+
+.doc-type-html {
+  background: #e67e22;
+}
+
+.doc-type-txt {
+  background: #7f8c8d;
+}
+
+.doc-item-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.doc-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 4px;
+}
+
+.doc-meta {
+  font-size: 12px;
+  color: #999999;
+}
+
+.doc-item-right {
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.doc-arrow {
+  font-size: 18px;
+  color: #cccccc;
+}
+
+.empty-state {
+  padding: 24px 0;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #999999;
+}
+
+/* 暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+  .doc-list-card {
+    background: #2c2c2c;
+  }
+  .card-header {
+    border-bottom-color: #3a3a3a;
+  }
+  .card-title {
+    color: #e0e0e0;
+  }
+  .doc-item {
+    border-bottom-color: #3a3a3a;
+  }
+  .doc-title {
+    color: #e0e0e0;
+  }
+}
+
+/* codeflicker-fix: COMPAT-Issue-4/gimlwacm7df67zl0zjur — JS 注入暗色类选器兜底 */
+.theme-dark .doc-list-card {
+  background: #2c2c2c;
+}
+.theme-dark .card-header {
+  border-bottom-color: #3a3a3a;
+}
+.theme-dark .card-title {
+  color: #e0e0e0;
+}
+.theme-dark .doc-item {
+  border-bottom-color: #3a3a3a;
+}
+.theme-dark .doc-title {
+  color: #e0e0e0;
+}

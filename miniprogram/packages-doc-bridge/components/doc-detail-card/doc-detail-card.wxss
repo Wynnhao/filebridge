@@ -1,0 +1,151 @@
+/* components/doc-detail-card/doc-detail-card.wxss */
+/* doc-bridge SKILL 原子组件：文档详情卡片样式 */
+/* 遵守原子组件约束：无滚动、固定尺寸、无动画 */
+
+.doc-detail-card {
+  width: 100%;
+  height: auto;
+  padding: 16px;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.doc-icon {
+  font-size: 22px;
+  margin-right: 10px;
+}
+
+.doc-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-label {
+  font-size: 13px;
+  color: #999999;
+}
+
+.info-value {
+  font-size: 13px;
+  color: #333333;
+  font-weight: 500;
+}
+
+.info-value.forever {
+  color: #4a90d9;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7f8fa;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.share-label {
+  font-size: 13px;
+  color: #999999;
+  margin-right: 8px;
+}
+
+.share-code {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: #4a90d9;
+  letter-spacing: 2px;
+  margin-right: 8px;
+}
+
+.share-hint {
+  font-size: 11px;
+  color: #cccccc;
+}
+
+.card-tip {
+  text-align: center;
+}
+
+.tip-text {
+  font-size: 11px;
+  color: #bbbbbb;
+}
+
+/* 暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+  .doc-detail-card {
+    background: #2c2c2c;
+  }
+  .card-header {
+    border-bottom-color: #3a3a3a;
+  }
+  .doc-title {
+    color: #e0e0e0;
+  }
+  .info-value {
+    color: #cccccc;
+  }
+  .info-value.forever {
+    color: #6db3f2;
+  }
+  .card-footer {
+    background: #3a3a3a;
+  }
+  .share-code {
+    color: #6db3f2;
+  }
+}
+
+/* codeflicker-fix: COMPAT-Issue-4/gimlwacm7df67zl0zjur — JS 注入暗色类选器兜底 */
+.theme-dark .doc-detail-card {
+  background: #2c2c2c;
+}
+.theme-dark .card-header {
+  border-bottom-color: #3a3a3a;
+}
+.theme-dark .doc-title {
+  color: #e0e0e0;
+}
+.theme-dark .info-value {
+  color: #cccccc;
+}
+.theme-dark .info-value.forever {
+  color: #6db3f2;
+}
+.theme-dark .card-footer {
+  background: #3a3a3a;
+}
+.theme-dark .share-code {
+  color: #6db3f2;
+}

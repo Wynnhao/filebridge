@@ -1,0 +1,39 @@
+<!-- components/doc-detail-card/doc-detail-card.wxml -->
+<!-- doc-bridge SKILL 原子组件：文档详情卡片 -->
+<!-- GUI 卡片，在 AI 对话流中展示文档详情和分享码 -->
+
+<view class="doc-detail-card" bindtap="onTapCard">
+  <view class="card-header">
+    <text class="doc-icon">{{fileType === 'md' ? '📝' : fileType === 'html' ? '🌐' : '📃'}}</text>
+    <text class="doc-title">{{title}}</text>
+  </view>
+
+  <view class="card-body">
+    <view class="info-row">
+      <text class="info-label">类型</text>
+      <text class="info-value">{{typeLabel}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">字数</text>
+      <text class="info-value">{{wordCount}} 字</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">查看</text>
+      <text class="info-value">{{viewCount}} 次</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">有效期</text>
+      <text class="info-value {{expiresAt ? '' : 'forever'}}">{{expiryText}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{shareCode}}" class="card-footer" bindtap="onCopyShareCode">
+    <text class="share-label">分享码</text>
+    <text class="share-code">{{shareCode}}</text>
+    <text class="share-hint">点击复制</text>
+  </view>
+
+  <view class="card-tip">
+    <text class="tip-text">点击卡片可在半屏中预览文档内容</text>
+  </view>
+</view>

@@ -30,12 +30,18 @@ Page({
   // 跳转分享页
   handleShare() {
     wx.navigateTo({
-      url: `/pages/share/index?shareCode=${this.data.shareCode}&title=${encodeURIComponent(this.data.title)}`,
+      url: `/pages/share/index?shareCode=${this.data.shareCode}&title=${encodeURIComponent(this.data.title)}&expiry=${encodeURIComponent(this.data.expiryText)}`,
     })
   },
 
   // 顶部分享按钮
   onShareAppMessage() {
+    // 静默递增分享次数
+    // codeflicker-fix: LOGIC-Issue-004/chudbvwsbhsz7kn7hanw
+    wx.cloud.callFunction({
+      name: 'incrementShare',
+      data: { shareCode: this.data.shareCode }
+    }).catch(() => {})
     return {
       title: this.data.title,
       path: `/pages/viewer/index?shareCode=${this.data.shareCode}`,

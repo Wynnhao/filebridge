@@ -1,0 +1,32 @@
+<!-- components/doc-list-card/doc-list-card.wxml -->
+<!-- doc-bridge SKILL 原子组件：文档列表卡片 -->
+<!-- GUI 卡片，在 AI 对话流中展示 -->
+
+<view class="doc-list-card">
+  <view class="card-header">
+    <text class="card-title">📄 我的文档（共{{total}}篇）</text>
+  </view>
+  <view class="doc-list">
+    <view 
+      wx:for="{{displayDocs}}" 
+      wx:key="docId" 
+      class="doc-item"
+      data-index="{{index}}"
+      bindtap="onTapDoc"
+    >
+      <view class="doc-item-left">
+        <text class="doc-type-badge doc-type-{{item.fileType}}">{{item.fileType === 'md' ? 'MD' : item.fileType === 'html' ? 'HTML' : 'TXT'}}</text>
+      </view>
+      <view class="doc-item-center">
+        <text class="doc-title">{{item.title || '未命名文档'}}</text>
+        <text class="doc-meta">{{item.wordCount || 0}} 字 · 已查看 {{item.viewCount || 0}} 次</text>
+      </view>
+      <view class="doc-item-right">
+        <text class="doc-arrow">›</text>
+      </view>
+    </view>
+  </view>
+  <view wx:if="{{displayDocs.length === 0}}" class="empty-state">
+    <text class="empty-text">暂无文档</text>
+  </view>
+</view>

@@ -6,6 +6,7 @@
 
 const { MOCK_DOCS, GUIDE_MD_CONTENT } = require('./mock')
 const { generateShareCode, extractTitle, countWords } = require('./helper')
+const { computeHash } = require('./crypto')
 
 // 是否使用 mock 数据（直接读取模块变量，避免依赖 getApp）
 const USE_MOCK = false
@@ -16,14 +17,21 @@ function isMockMode() {
 
 /**
  * 获取我的文档列表
+ * // codeflicker-fix: DEDUP-Issue-1/pg216fgjaow3iox26nxk — 增加 _openid 过滤，仅查当前用户文档
  */
 async function getMyDocs() {
   if (isMockMode()) {
     return { success: true, data: MOCK_DOCS }
   }
   try {
+    const app = getApp()
+    const openid = app.globalData.openid || 'unknown'
     const db = wx.cloud.database()
     const { data } = await db.collection('docs')
+      .where(db.command.or([
+        { _openid: '{openid}' },
+        { isGuide: true }
+      ]))
       .orderBy('createdAt', 'desc')
       .limit(20)
       .get()
@@ -46,7 +54,7 @@ async function getDocContent(shareCode) {
       return {
         success: true,
         data: {
-          title: '飞文FileBridge使用指南',
+          title: '马档使用指南',
           fileType: 'md',
           content: GUIDE_MD_CONTENT,
           viewCount: 0,
@@ -98,7 +106,7 @@ async function getDocContent(shareCode) {
  * @param {string} filename 文件名
  * // codeflicker-fix: EDGE-Issue-001/2sfzcykvrat5gct6j21b
  */
-async function uploadDoc(filePath, content, filename) {
+async function uploadDoc(filePath, content, filename, expiryDays = 7) {
   if (isMockMode()) {
     // 碰撞检测：重试最多3次
     let shareCode = generateShareCode()
@@ -112,18 +120,21 @@ async function uploadDoc(filePath, content, filename) {
     }
     const title = extractTitle(content, filename)
     const wordCount = countWords(content)
+    let fileType = 'md'
+    if (filename.endsWith('.html') || filename.endsWith('.htm')) fileType = 'html'
+    else if (filename.endsWith('.txt')) fileType = 'txt'
     const doc = {
       _id: 'mock_' + Date.now(),
       shareCode,
       title,
       filename,
-      fileType: filename.endsWith('.html') ? 'html' : 'md',
+      fileType,
       wordCount,
       viewCount: 0,
       createdAt: new Date().toISOString(),
-      expiresAt: db.serverDate({ offset: 7 * 86400000 }), // codeflicker-fix: DATA-Issue-007/mxv5lat2oxn4abw6xhdd — 使用服务器时间+偏移量，避免客户端时间不准确
+      expiresAt: new Date(Date.now() + expiryDays * 86400000).toISOString(),
       isPublic: true,
-      content, // mock 时直接带内容
+      content,
     }
     return { success: true, data: doc }
   }
@@ -145,28 +156,41 @@ async function uploadDoc(filePath, content, filename) {
     const openid = app.globalData.openid || 'unknown'
     const cloudPath = `docs/${openid}/${shareCode}_${filename}`
 
-    // 1. 上传文件到云存储
-    const uploadRes = await wx.cloud.uploadFile({
-      cloudPath,
-      filePath,
-    })
-    const fileID = uploadRes.fileID
+    // 1. 上传文件到云存储（仅当 filePath 有效时）
+    // codeflicker-fix: EDGE-Issue-003/chudbvwsbhsz7kn7hanw — 粘贴上传无文件路径时跳过云存储上传
+    let fileID = ''
+    if (filePath) {
+      const uploadRes = await wx.cloud.uploadFile({
+        cloudPath,
+        filePath,
+      })
+      fileID = uploadRes.fileID
+    }
 
     // 2. 写入元数据到云数据库
     const title = extractTitle(content, filename)
     const wordCount = countWords(content)
+    let fileType = 'md'
+    if (filename.endsWith('.html') || filename.endsWith('.htm')) fileType = 'html'
+    else if (filename.endsWith('.txt')) fileType = 'txt'
     const db = wx.cloud.database()
     const docData = {
       shareCode,
       fileID,
       title,
       filename,
-      fileType: filename.endsWith('.html') ? 'html' : 'md',
+      fileType,
       wordCount,
       viewCount: 0,
+      contentHash: computeHash(content),  // codeflicker-fix: DEDUP-Issue-1/pg216fgjaow3iox26nxk
       createdAt: db.serverDate(),
-      expiresAt: new Date(Date.now() + 7 * 86400000).toISOString(),
+      expiresAt: db.serverDate({ offset: expiryDays * 86400000 }),
       isPublic: true,
+    }
+    // 粘贴上传无文件路径时，直接将内容存入数据库（避免云存储下载失败）
+    // codeflicker-fix: EDGE-Issue-003/chudbvwsbhsz7kn7hanw
+    if (!fileID) {
+      docData.content = content.slice(0, 500000)  // 限制 500KB
     }
     const addRes = await db.collection('docs').add({ data: docData })
 

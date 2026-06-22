@@ -3,6 +3,7 @@
 // codeflicker-fix: REFACTOR-Issue-001/axj1q4pib9s0gmuphu0d — 使用 docRenderer Behavior 共享渲染逻辑
 
 const docRenderer = require('../../behaviors/docRenderer')
+const { getDocContent } = require('../../utils/cloud')  // codeflicker-fix: LOGIC-Issue-003/7k3sz5llqevbucvw3joj
 const { formatExpiry } = require('../../utils/helper')
 
 Page({
@@ -83,6 +84,12 @@ Page({
 
   // 接收者也可以继续转发
   onShareAppMessage() {
+    // 静默递增分享次数
+    // codeflicker-fix: LOGIC-Issue-004/chudbvwsbhsz7kn7hanw
+    wx.cloud.callFunction({
+      name: 'incrementShare',
+      data: { shareCode: this.data.shareCode }
+    }).catch(() => {})
     return {
       title: this.data.title,
       path: `/pages/viewer/index?shareCode=${this.data.shareCode}`,

@@ -16,10 +16,33 @@ App({
     }
   },
 
+  // codeflicker-fix: THEME-Issue-001/chudbvwsbhsz7kn7hanw — 全局主题持久化
   globalData: {
     cloudEnvId: CLOUD_ENV_ID,
     openid: '',
     cloudInited: false,
+    theme: 'light',
+  },
+
+  // 读取并应用持久化的主题
+  loadTheme() {
+    try {
+      const stored = wx.getStorageSync('app_theme')
+      if (stored === 'light' || stored === 'dark') {
+        this.globalData.theme = stored
+      }
+    } catch (e) {
+      // 静默忽略
+    }
+    return this.globalData.theme
+  },
+
+  // 切换主题并持久化
+  toggleTheme() {
+    const next = this.globalData.theme === 'light' ? 'dark' : 'light'
+    this.globalData.theme = next
+    wx.setStorageSync('app_theme', next)
+    return next
   },
 
   // 获取 openid（异步，不阻塞页面加载）

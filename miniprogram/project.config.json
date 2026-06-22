@@ -1,6 +1,6 @@
 {
   "desc": "项目配置文件",
-  "projectname": "feiwen",
+  "projectname": "madangchuanshu",
   "appid": "wx0992f0cfb248a860",
   "cloudfunctionRoot": "cloudfunctions/",
   "setting": {
@@ -51,7 +51,12 @@
   "simulatorPluginLibVersion": {},
   "packOptions": {
     "ignore": [],
-    "include": []
+    "include": [
+      {
+        "type": "folder",
+        "value": "packages-doc-bridge"
+      }
+    ]
   },
   "editorSetting": {},
   "uploadKey": {

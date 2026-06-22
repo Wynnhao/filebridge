@@ -1,0 +1,9 @@
+{
+  "name": "incrementShare",
+  "version": "1.0.0",
+  "description": "递增文档分享次数",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

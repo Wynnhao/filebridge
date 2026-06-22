@@ -1,0 +1,34 @@
+// cloudfunctions/updateGuide/index.js
+// 一次性云函数：更新指南文档的 content 字段
+// 部署后调用一次即可，然后可删除此云函数
+
+const cloud = require('wx-server-sdk')
+
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
+
+const GUIDE_CONTENT = '# 马档使用指南\n\n> 文档传阅，即刻分享\n\n欢迎来到马档！这是一份快速上手指南，帮助你了解如何在小程序内上传、预览和分享 Markdown 和 HTML 文档。\n\n---\n\n## 如何上传文档\n\n马档提供三种上传方式，满足不同场景需求：\n\n1. **微信文件**：从微信聊天记录中选取 .md 或 .html 文件\n2. **本地文件**：引导你通过微信文件传输助手选取本地文件\n3. **粘贴内容**：直接粘贴 Markdown 或 HTML 文本内容，适合从 AI 工具复制\n\n> 提示：你可以先把 AI 生成的文档发给微信文件传输助手，再在马档中通过微信文件选取。\n\n---\n\n## 如何按编码查看文档\n\n如果你收到了一个文档编码，可以这样查看：\n\n1. 在首页搜索栏输入编码\n2. 或点击粘贴按钮直接从剪贴板读取\n3. 点击查找即可打开文档\n\n---\n\n## 如何分享文档\n\n- **微信转发**：在预览页点击分享文档，发送小程序卡片给好友或群\n- **复制编码**：每个文档生成唯一的 8 位编码，可通过任何渠道发送\n\n> 接收者无需安装任何东西，点击卡片或输入编码即可直接阅读。\n\n---\n\n## 如何删除文档\n\n在你的文档列表中，点击文档右侧的删除按钮即可删除。删除前会弹出确认对话框。\n\n> 注意：使用指南不能删除。\n\n---\n\n## 深色模式\n\n阅读文档时，点击底部的主题切换按钮可在浅色和深色之间切换，夜间阅读更舒适。\n\n---\n\n## 文档有效期\n\n- 上传的文档默认 7 天后过期\n- 过期后文档自动清理，无法再查看\n- 指南文档永不过期\n\n---\n\n## 如何保存文档\n\n在查看页底部点击保存到本地：\n\n- .html 文件可直接保存并用其他 App 打开\n- .md 文件会复制内容到剪贴板，可粘贴到任何编辑器\n\n---\n\n## 常见问题\n\n**Q：支持哪些文件格式？**\nA：目前支持 .md（Markdown）和 .html（HTML）两种格式。\n\n**Q：文件大小有限制吗？**\nA：建议文件大小不超过 500KB，超大文件可能导致渲染超时。\n\n**Q：接收者需要安装马档吗？**\nA：不需要。微信小程序无需安装，点击卡片即可直接阅读。\n\n**Q：HTML 文件的样式能完整渲染吗？**\nA：基础排版（标题、列表、表格、代码块）可以正常渲染。包含复杂 CSS 的 HTML 文件会提示建议在浏览器中打开。\n\n---\n\n马档 · 文档传阅，即刻分享'
+
+exports.main = async (event, context) => {
+  const db = cloud.database()
+
+  // 查找指南文档
+  const { data } = await db.collection('docs')
+    .where({ shareCode: 'guide000', isGuide: true })
+    .get()
+
+  if (!data || data.length === 0) {
+    return { error: 'NOT_FOUND', message: '指南文档不存在，请先在数据库中创建' }
+  }
+
+  const doc = data[0]
+
+  // 更新 content 字段
+  await db.collection('docs').doc(doc._id).update({
+    data: {
+      content: GUIDE_CONTENT,
+      title: '马档使用指南',
+    }
+  })
+
+  return { success: true, message: '指南文档内容已更新' }
+}

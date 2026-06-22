@@ -1,10 +1,15 @@
 <!--pages/viewer/index.wxml-->
 <!-- 接收端查看页，结构与 preview 完全一致，复用样式 -->
-<view class="page">
-  <!-- 加载状态 -->
-  <view wx:if="{{loading}}" class="loading-wrap">
-    <view class="loading-spinner"></view>
-    <text>文档加载中...</text>
+<view class="page font-{{fontSize}}">
+  <!-- 加载骨架屏 -->
+  <view wx:if="{{loading}}" class="skeleton-wrap">
+    <view class="skeleton-block skeleton-title"></view>
+    <view class="skeleton-block skeleton-line"></view>
+    <view class="skeleton-block skeleton-line short"></view>
+    <view class="skeleton-block skeleton-line"></view>
+    <view class="skeleton-block skeleton-line medium"></view>
+    <view class="skeleton-block skeleton-line"></view>
+    <view class="skeleton-block skeleton-line short"></view>
   </view>
 
   <!-- 错误状态 -->
@@ -28,14 +33,47 @@
   </view>
 
   <!-- 文档内容 -->
-  <view wx:else class="doc-wrap">
+  <view wx:else class="doc-wrap {{theme === 'dark' ? 'theme-dark' : ''}}">
     <!-- 元信息栏 -->
-    <view class="doc-meta-bar">
+    <view class="doc-meta-bar {{theme === 'dark' ? 'theme-dark' : ''}}">
       <view class="doc-meta-left">
         <view class="doc-type-badge {{fileType}}">{{fileType}}</view>
         <text class="doc-meta-text">{{wordCount}} 字 · {{viewCount}} 次查看</text>
         <text wx:if="{{expiryText}}" class="doc-expiry">{{expiryText}}</text>
       </view>
+      <view class="doc-meta-right">
+        <!-- 目录按钮（仅 MD 且有标题时显示） -->
+        <view wx:if="{{tocItems.length > 0}}" class="meta-btn toc-btn" bindtap="toggleToc">
+          <text>☰</text>
+        </view>
+        <!-- 字号切换 -->
+        <view class="meta-btn font-btn" bindtap="toggleFontSlider">
+          <text class="font-btn-label">A<text class="font-btn-label-small">A</text></text>
+        </view>
+        <!-- 主题切换 -->
+        <view class="meta-btn theme-btn" bindtap="toggleTheme">
+          <text wx:if="{{theme === 'light'}}">🌙</text>
+          <text wx:else>☀️</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 字号滑动条 -->
+    <view wx:if="{{showFontSlider}}" class="font-slider-bar {{theme === 'dark' ? 'theme-dark' : ''}}">
+      <text class="font-slider-label">A</text>
+      <slider
+        class="font-slider"
+        min="0"
+        max="4"
+        step="1"
+        value="{{fontLevel}}"
+        show-value="{{false}}"
+        activeColor="#07c160"
+        backgroundColor="#e5e5e5"
+        block-size="20"
+        bindchange="handleFontSliderChange"
+      />
+      <text class="font-slider-label font-slider-label-lg">A</text>
     </view>
 
     <!-- 带外部样式的 HTML 提示 -->
@@ -43,7 +81,7 @@
       <view class="style-warning-icon">⚠️</view>
       <view class="style-warning-text">
         <view class="style-warning-title">样式无法完整渲染</view>
-        <view class="style-warning-desc">此 HTML 文件包含自定义样式，飞文内仅显示文字结构。建议在浏览器内打开以获得完整效果。</view>
+        <view class="style-warning-desc">此 HTML 文件包含自定义样式，马档内仅显示文字结构。建议在浏览器内打开以获得完整效果。</view>
       </view>
     </view>
 
@@ -52,24 +90,53 @@
       wx:if="{{towxmlAvailable && nodes}}"
       scroll-y
       class="doc-scroll"
+      scroll-top="{{scrollTop}}"
+      scroll-into-view="{{scrollToId}}"
+      bindscroll="handleDocScroll"
     >
-      <view class="doc-content">
-        <towxml nodes="{{nodes}}" bindtap="handleNodeTap" />
+      <view class="doc-content" bindlongpress="handleCodeLongPress">
+        <towxml nodes="{{nodes}}" />
       </view>
     </scroll-view>
 
     <!-- 降级：原始文本 -->
-    <scroll-view wx:elif="{{rawContent}}" scroll-y class="doc-scroll">
+    <scroll-view wx:elif="{{rawContent}}" scroll-y class="doc-scroll"
+      scroll-top="{{scrollTop}}"
+      bindscroll="handleDocScroll">
       <view class="doc-content raw-content">
         <text selectable>{{rawContent}}</text>
       </view>
     </scroll-view>
   </view>
 
+  <!-- 目录面板 -->
+  <view wx:if="{{showToc}}" class="toc-overlay" bindtap="toggleToc">
+    <view class="toc-panel {{theme === 'dark' ? 'theme-dark' : ''}}" catchtap="noop">
+      <view class="toc-header">
+        <text>目录</text>
+        <text class="toc-close" catchtap="toggleToc">✕</text>
+      </view>
+      <scroll-view class="toc-list" scroll-y>
+        <view wx:for="{{tocItems}}" wx:key="anchor"
+          class="toc-item toc-level-{{item.level}}"
+          bindtap="scrollToHeading"
+          data-anchor="{{item.anchor}}">
+          <view class="toc-dot toc-dot-{{item.level}}"></view>
+          <text>{{item.text}}</text>
+        </view>
+      </scroll-view>
+      <view wx:if="{{tocItems.length === 0}}" class="toc-empty">本文档无标题结构</view>
+    </view>
+  </view>
+
   <!-- 底部操作栏 -->
-  <view wx:if="{{!loading && !error}}" class="bottom-bar">
+  <view wx:if="{{!loading && !error}}" class="bottom-bar {{theme === 'dark' ? 'theme-dark' : ''}}">
+    <button class="btn-theme-toggle" bindtap="toggleTheme">
+      <text wx:if="{{theme === 'light'}}">🌙 深色</text>
+      <text wx:else>☀️ 浅色</text>
+    </button>
     <button class="btn-save" bindtap="handleSaveFile">
-      <text>💾 保存到本地</text>
+      <text>💾 保存</text>
     </button>
     <button class="btn-forward" open-type="share">
       <text>📤 转发</text>
